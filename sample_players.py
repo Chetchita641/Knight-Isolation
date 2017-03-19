@@ -252,7 +252,6 @@ if __name__ == "__main__":
     new_game = game.forecast_move((1, 1))
     assert(new_game.to_string() != game.to_string())
     print("\nOld state:\n{}".format(game.to_string()))
-    print("\nNew state:\n{}".format(new_game.to_string()))
 
     # play the remainder of the game automatically -- outcome can be "illegal
     # move" or "timeout"; it should _always_ be "illegal move" in this example

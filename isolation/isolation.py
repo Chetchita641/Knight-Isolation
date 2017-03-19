@@ -342,10 +342,11 @@ class Board(object):
             else:
                 move_history[-1].append(curr_move)
 
-            # if move_end < 0:
-            #    return self.__inactive_player__, move_history, "timeout"
+            if move_end < 0:
+                return self.__inactive_player__, move_history, "timeout"
 
             if curr_move not in legal_player_moves:
                 return self.__inactive_player__, move_history, "illegal move"
 
             self.apply_move(curr_move)
+            print("\nNew state:\n{}".format(self.to_string()))

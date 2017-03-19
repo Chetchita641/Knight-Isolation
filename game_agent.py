@@ -37,8 +37,18 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
 
-    # TODO: finish this function!
-    raise NotImplementedError
+    # Returns number of possible moves
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    own_moves = len(game.get_legal_moves(player))
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    print('Own Moves: ' + str(own_moves))
+    print('Opp Moves: ' + str(opp_moves))
+    return float(own_moves - opp_moves)
 
 
 class CustomPlayer:
@@ -118,7 +128,9 @@ class CustomPlayer:
 
         self.time_left = time_left
 
-        # TODO: finish this function!
+        if not legal_moves:
+            return (-1, -1)
+        move = legal_moves[0]
 
         # Perform any required initializations, including selecting an initial
         # move from the game board (i.e., an opening book), or returning
@@ -129,6 +141,18 @@ class CustomPlayer:
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
+            if self.method == 'minimax':
+                _, move = self.minimax(game, self.search_depth)
+                i = 1
+                while self.iterative:
+                    _, move = self.minimax(game, self.search_depth + i)
+                    i += 1
+            else:
+                _, move = self.alphabeta(game, self.search_depth)
+                i = 1
+                while self.iterative:
+                    _, move = self.alphabeta(game, self.search_depth + i)
+                    i += 1
             pass
 
         except Timeout:
@@ -136,7 +160,7 @@ class CustomPlayer:
             pass
 
         # Return the best move from the last completed search iteration
-        raise NotImplementedError
+        return move
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -173,7 +197,26 @@ class CustomPlayer:
             raise Timeout()
 
         # TODO: finish this function!
-        raise NotImplementedError
+        if depth == 0:
+            return self.score(game, self), (-1, -1)
+        legal_moves = game.get_legal_moves()
+        
+        if maximizing_player:
+            best_score = float("-inf")
+        else:
+            best_score = float("inf")
+        best_move = (-1, -1)
+        for lm in legal_moves:
+            next_board = game.forecast_move(lm)
+            score, move = self.minimax(next_board, depth-1, not maximizing_player)
+            if (score > best_score and maximizing_player) or (score < best_score and not maximizing_player):
+                best_score = score
+                best_move = move
+        return best_score, best_move
+        
+        
+            
+        
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -217,4 +260,25 @@ class CustomPlayer:
             raise Timeout()
 
         # TODO: finish this function!
-        raise NotImplementedError
+        if depth == 0:
+            return self.score(game, self), None
+        
+        legal_moves = game.get_legal_moves()
+        if maximizing_player:
+            best, move = float("-int"), (-1, -1)
+            for lm in legal_moves:
+                next_board = game.forecast_move(lm)
+                best = max(best, self.alphabeta(next_board, depth-1, alpha, beta, not maximizing_player))
+                if best >= beta: return best
+                alpha = max(alpha, best[0])
+            return best
+            
+        else:
+            best = (float("inf"), (-1, -1))
+            for lm in legal_moves:
+                next_board = game.forecast_move(lm)
+                best = min(best, self.alphabeta(next_board, depth-1, alpha, beta, not maximizing_player))
+                if best <= alpha: return best
+                beta = min(beta, best[0])
+            return best
+       
