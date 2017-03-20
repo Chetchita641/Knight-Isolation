@@ -44,11 +44,7 @@ def custom_score(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    own_moves = len(game.get_legal_moves(player))
-    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    print('Own Moves: ' + str(own_moves))
-    print('Opp Moves: ' + str(opp_moves))
-    return float(own_moves - opp_moves)
+    return float(len(game.get_legal_moves(player)))
 
 
 class CustomPlayer:
@@ -127,11 +123,12 @@ class CustomPlayer:
         """
 
         self.time_left = time_left
-
         if not legal_moves:
             return (-1, -1)
+        if len(legal_moves) > 8:
+            return (4, 4)
         move = legal_moves[0]
-
+        
         # Perform any required initializations, including selecting an initial
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
@@ -157,7 +154,7 @@ class CustomPlayer:
 
         except Timeout:
             # Handle any actions required at timeout, if necessary
-            pass
+            return move
 
         # Return the best move from the last completed search iteration
         return move
@@ -197,7 +194,7 @@ class CustomPlayer:
             raise Timeout()
 
         # TODO: finish this function!
-        if depth == 0:
+        if depth <= 0:
             return self.score(game, self), (-1, -1)
         legal_moves = game.get_legal_moves()
         
@@ -211,7 +208,7 @@ class CustomPlayer:
             score, move = self.minimax(next_board, depth-1, not maximizing_player)
             if (score > best_score and maximizing_player) or (score < best_score and not maximizing_player):
                 best_score = score
-                best_move = move
+                best_move = lm
         return best_score, best_move
         
         
@@ -261,24 +258,30 @@ class CustomPlayer:
 
         # TODO: finish this function!
         if depth == 0:
-            return self.score(game, self), None
+            return self.score(game, self), (-1, -1)
         
         legal_moves = game.get_legal_moves()
         if maximizing_player:
-            best, move = float("-int"), (-1, -1)
+            best_score, best_move = alpha, (-1, -1)
             for lm in legal_moves:
                 next_board = game.forecast_move(lm)
-                best = max(best, self.alphabeta(next_board, depth-1, alpha, beta, not maximizing_player))
-                if best >= beta: return best
-                alpha = max(alpha, best[0])
-            return best
+                score, move = self.alphabeta(next_board, depth-1, alpha, beta, not maximizing_player)
+                if score > best_score:
+                    best_score = score
+                    best_move = lm
+                if best_score >= beta: return best_score, best_move
+                alpha = max(alpha, best_score)
+            return best_score, best_move
             
         else:
-            best = (float("inf"), (-1, -1))
+            best_score, best_move = beta, (-1, -1)
             for lm in legal_moves:
                 next_board = game.forecast_move(lm)
-                best = min(best, self.alphabeta(next_board, depth-1, alpha, beta, not maximizing_player))
-                if best <= alpha: return best
-                beta = min(beta, best[0])
-            return best
+                score, move = self.alphabeta(next_board, depth-1, alpha, beta, not maximizing_player)
+                if score < best_score:
+                    best_score = score
+                    best_move = lm
+                if best_score <= alpha: return best_score, best_move
+                beta = min(beta, best_score)
+            return best_score, best_move
        
