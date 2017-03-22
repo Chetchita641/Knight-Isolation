@@ -9,6 +9,7 @@ relative strength using tournament.py and include the results in your report.
 import random
 
 
+
 class Timeout(Exception):
     """Subclass base exception for code clarity."""
     pass
@@ -43,8 +44,10 @@ def custom_score(game, player):
 
     if game.is_winner(player):
         return float("inf")
-
-    return float(len(game.get_legal_moves(player)))
+     
+    own_moves = game.get_legal_moves(player)
+    opp_moves = game.get_legal_moves(game.get_opponent(player))
+    return float(len(own_moves) - len(opp_moves))
 
 
 class CustomPlayer:
@@ -139,16 +142,16 @@ class CustomPlayer:
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
             if self.method == 'minimax':
-                _, move = self.minimax(game, self.search_depth)
+                _, new_move = self.minimax(game, self.search_depth)
                 i = 1
                 while self.iterative:
-                    _, move = self.minimax(game, self.search_depth + i)
+                    _, new_move = self.minimax(game, self.search_depth + i)
                     i += 1
             else:
-                _, move = self.alphabeta(game, self.search_depth)
+                _, new_move = self.alphabeta(game, self.search_depth)
                 i = 1
                 while self.iterative:
-                    _, move = self.alphabeta(game, self.search_depth + i)
+                    _, new_move = self.alphabeta(game, self.search_depth + i)
                     i += 1
             pass
 
@@ -157,6 +160,8 @@ class CustomPlayer:
             return move
 
         # Return the best move from the last completed search iteration
+        if not new_move == (-1, -1):
+            return new_move
         return move
 
     def minimax(self, game, depth, maximizing_player=True):
