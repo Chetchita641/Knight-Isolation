@@ -1,4 +1,4 @@
-Built with Udacity, this game playing agent uses contraint propagation and scoring mechanisms to strategize and win a game called Knight's Isolation. 
+Built with Udacity, this game playing agent uses contraint propagation and scoring mechanisms to strategize and win a game called Knight's Isolation. My main contributions were in game_agent.py.
 
 The following is from Udacity's project prompt.
 # Build a Game-playing Agent
